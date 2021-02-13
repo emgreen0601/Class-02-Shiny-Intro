@@ -33,19 +33,33 @@ ui <- fluidPage(
       sliderInput(inputId = "alpha", 
                   label = "Alpha:", 
                   min = 0, max = 1, 
-                  value = 0.5)
+                  value = 0.5),
+      
+      #checkbox
+      checkboxInput(inputId = "show_data",
+                    label = "the data plotted should be shown in the data table",
+                    TRUE)
     ),
     
     # Output: Show scatterplot --------------------------------------
     mainPanel(
-      plotOutput(outputId = "scatterplot")
+      plotOutput(outputId = "scatterplot"),
+      
+      #show the data table
+      DT::dataTableOutput(outputId = "moviestable")
     )
   )
 )
 
 # Define server function required to create the scatterplot ---------
 server <- function(input, output) {
-  
+  output$moviestable <- DT::renderDataTable(
+    if(input$show_data){
+      DT::datatable(data = movies[, 1:7], 
+                options = list(pageLength = 25), 
+                rownames = FALSE)
+    
+  })
   # Create scatterplot object the plotOutput function is expecting --
   output$scatterplot <- renderPlot({
     ggplot(data = movies, aes_string(x = input$x, y = input$y,

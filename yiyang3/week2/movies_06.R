@@ -1,13 +1,14 @@
 library(shiny)
 library(ggplot2)
 library(DT)
+library(stringr)
 load("movies.Rdata")
 
 # Define UI for application that plots features of movies -----------
 ui <- fluidPage(
   
-  #application title ----------
-  titlePanel("Movie Browser"),
+  # Application title -----------------------------------------------
+  titlePanel("Movie browser"),
   
   # Sidebar layout with a input and output definitions --------------
   sidebarLayout(
@@ -18,19 +19,31 @@ ui <- fluidPage(
       # Select variable for y-axis ----------------------------------
       selectInput(inputId = "y", 
                   label = "Y-axis:",
-                  choices = c("imdb_rating", "imdb_num_votes", "critics_score", "audience_score", "runtime"), 
+                  choices = c("IMDB rating" = "imdb_rating", 
+                              "IMDB number of votes" = "imdb_num_votes", 
+                              "Critics Score" = "critics_score", 
+                              "Audience Score" = "audience_score", 
+                              "Runtime" = "runtime"), 
                   selected = "audience_score"),
       
       # Select variable for x-axis ----------------------------------
       selectInput(inputId = "x", 
                   label = "X-axis:",
-                  choices = c("imdb_rating", "imdb_num_votes", "critics_score", "audience_score", "runtime"), 
+                  choices = c("IMDB rating" = "imdb_rating", 
+                              "IMDB number of votes" = "imdb_num_votes", 
+                              "Critics Score" = "critics_score", 
+                              "Audience Score" = "audience_score", 
+                              "Runtime" = "runtime"), 
                   selected = "critics_score"),
       
       # Select variable for color -----------------------------------
       selectInput(inputId = "z", 
                   label = "Color by:",
-                  choices = c("title_type", "genre", "mpaa_rating", "critics_rating", "audience_rating"),
+                  choices = c("Title Type" = "title_type", 
+                              "Genre" = "genre", 
+                              "MPAA Rating" = "mpaa_rating", 
+                              "Critics Rating" = "critics_rating", 
+                              "Audience Rating" = "audience_rating"),
                   selected = "mpaa_rating"),
       
       # Set alpha level ---------------------------------------------
@@ -38,6 +51,12 @@ ui <- fluidPage(
                   label = "Alpha:", 
                   min = 0, max = 1, 
                   value = 0.5),
+      
+      # Set point size ----------------------------------------------
+      sliderInput(inputId = "size", 
+                  label = "Size:", 
+                  min = 0, max = 5, 
+                  value = 2),
       
       # Show data table ---------------------------------------------
       checkboxInput(inputId = "show_data",
@@ -64,7 +83,10 @@ server <- function(input, output) {
   output$scatterplot <- renderPlot({
     ggplot(data = movies, aes_string(x = input$x, y = input$y,
                                      color = input$z)) +
-      geom_point(alpha = input$alpha)
+      geom_point(alpha = input$alpha, size = input$size) +
+      labs(x = toTitleCase(str_replace_all(input$x, "_", " ")),
+           y = toTitleCase(str_replace_all(input$y, "_", " ")),
+           color = toTitleCase(str_replace_all(input$z, "_", " ")))
   })
   
   # Print data table if checked -------------------------------------

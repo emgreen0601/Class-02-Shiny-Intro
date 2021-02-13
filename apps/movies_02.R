@@ -27,7 +27,11 @@ ui <- fluidPage(
       selectInput(inputId = "z", 
                   label = "Color by:",
                   choices = c("title_type", "genre", "mpaa_rating", "critics_rating", "audience_rating"),
-                  selected = "mpaa_rating")
+                  selected = "mpaa_rating"),
+      
+      #sliderbar for controlling alpha
+      sliderInput(inputId = "a", label = "the alpha level of the points:", 
+                  min = 0, max = 1, value = 0.75)
     ),
     
     # Output: Show scatterplot --------------------------------------
@@ -44,7 +48,7 @@ server <- function(input, output) {
   output$scatterplot <- renderPlot({
     ggplot(data = movies, aes_string(x = input$x, y = input$y,
                                      color = input$z)) +
-      geom_point()
+      geom_point(alpha = input$a)
   })
 }
 
